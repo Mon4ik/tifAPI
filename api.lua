@@ -1,4 +1,4 @@
-local convertors = require("tif.convertors")
+
 api = {}
 function convertToPaint(Decimal) --return number, string, nil
 	local result = nil
