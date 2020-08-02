@@ -1,6 +1,6 @@
 
 api = {}
-function convertToPaint(Decimal) --return number, string, nil
+function api.convertToPaint(Decimal) --return number, string, nil
 	local result = nil
 	if Decimal      == 1          then
 		result =  0
@@ -37,7 +37,7 @@ function convertToPaint(Decimal) --return number, string, nil
 	end
 	return result
 end
-function paintToDecimal(Paint)
+function api.paintToDecimal(Paint)
 	local result = nil
 	if Paint     == "0" then
 		result = 1
