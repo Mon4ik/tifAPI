@@ -111,7 +111,10 @@ function api.saveImage(TifImage, filename)
 	end
 	fp.close()
 end
-function api.drawImage(TifImage, x, y)
+function api.drawImage(TifImage, x, y, monitor)
+	if type(monitor) ~= "table" then
+		monitor = term
+	end
 	if TifImage == nil or type(TifImage) ~= "table" then
 		error("Invalid argument TifImage!")
 	elseif x    == nil or type(x)        ~= "number" then
@@ -122,7 +125,10 @@ function api.drawImage(TifImage, x, y)
 		for ln, l in pairs(TifImage) do
 			for sn, s in pairs(TifImage[ln]) do
 				local color = paintToDecimal(s)
-				paintutils.drawPixel(x+(sn-1), y+(ln-1), color)
+				monitor.setBackgroundColor(color)
+				monitor.setTextColor(color)
+				monitor.setCursorPos(x+(sn-1), y+(ln-1))
+				monitor.write("-")
 			end
 		end
 	end
