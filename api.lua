@@ -124,7 +124,7 @@ function api.drawImage(TifImage, x, y, monitor)
 	else
 		for ln, l in pairs(TifImage) do
 			for sn, s in pairs(TifImage[ln]) do
-				local color = paintToDecimal(s)
+				local color = api.paintToDecimal(s)
 				monitor.setBackgroundColor(color)
 				monitor.setTextColor(color)
 				monitor.setCursorPos(x+(sn-1), y+(ln-1))
