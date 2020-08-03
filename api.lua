@@ -1,9 +1,8 @@
-
 api = {}
 function api.convertToPaint(Decimal) --return number, string, nil
 	local result = nil
 	if Decimal      == 1          then
-		result =  0
+		result = "0"
 	elseif Decimal  == 2          then
 		result = "1"
 	elseif Decimal  == 4          then
