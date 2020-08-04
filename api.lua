@@ -1,20 +1,20 @@
-api = {}
+local api = {}
 
 
 local bit32 = require("bit32")
 
 
 function api.convertToPaint(decemical) --return number, string, nil
-    local number = tonumber(decemical)
+    return tostring(api.paintToDecimal(decemical))
+end
+function api.paintToDecimal(paint)
+    local number = tonumber(paint)
     if not number then
-		number = 10 + string.byte(decemical) - 97
+		number = 10 + string.byte(paint) - 97
     end
 
     -- lua 5.3 return (2 << (number - 1))
 	return bit32.lshift(2, number - 1)
-end
-function api.paintToDecimal(paint)
-    return api.convertToPaint(paint)
 end
 function split(inputstr, sep)
     if sep == nil then
