@@ -1,11 +1,10 @@
 # tifAPI
-This api add images in ComputerCraft
+Данная библиотека добавить формат изображений в ComputerCraft
 ## Installation
-To install api run command `pastebin get EnZksdhv tifIntaller`
-After installation, write `tifInstaller <Path where the tif folder will be installed>`
-**Congratulations 🎉***! You installed tifAPI!
-## Documentation
-#### P.s. Only russian, sorry😢
+Для устоновки напиши `pastebin get EnZksdhv tifIntaller`
+После установки, напиши `tifInstaller <Путь, где будет папка tif>`
+**Поздравляю 🎉**! Ты установил tifAPI!
+## Документация
 ### require("<Папка, в которой папка tif>/tif.api") 
 #### Импортировать библиотеку
  
