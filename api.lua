@@ -1,20 +1,209 @@
 local api = {}
+function save(filename)
+	local fp = fs.open(filename, "w")
+	fp.write("")
+	fp.close()
+	local fp = fs.open(filename, "a")
+	for ln,l in pairs(TifImage) do
+		for sn,s in pairs(TifImage[ln]) do
+			fp.write(s)
+		end
+		if ln == #TifImage then
+		break
+		else
+			fp.write("\n")
+		end
+	end
+	fp.close()
+end
+local function drawPixel(x, y, PaintColor)
+	    if TifImage       == nil or type(TifImage)   ~= "table" then
+			local er = {true, "TifImage"}
+		elseif x          == nil or type(x)          ~= "number" then
+			local er = {true, "x"}
+		elseif y          == nil or type(y)          ~= "number" then
+			local er = {true, "y"}
+		elseif PaintColor == nil or type(PaintColor) ~= "string" then
+			local er = {true, "PaintColor"}
+		else
+			x = math.floor(x)
+			y = math.floor(y)
+			local er = {false}
+			TifImage[y][x] = PaintColor
+		end
+		return er
+    end
+function drawImage(x, y, monitor) --return table{bool Error, string InvalidArgument}
+	if type(monitor) ~= "table" then
+		monitor = term
+	end
+	if TifImage == nil or type(TifImage) ~= "table" then
+		local er = {true, "TifImage"}
+	elseif x    == nil or type(x)        ~= "number" then
+		local er = {true, "x"}
+	elseif y    == nil or type(y)        ~= "number" then
+		local er = {true, "y"}
+	else
+		local er = {false}
+		for ln, l in pairs(TifImage) do
+			for sn, s in pairs(TifImage[ln]) do
+				local color = api.paintToDecimal(s)
+				if color == nil then
+					-- O_o
+				else
+					monitor.setBackgroundColor(color)
+					monitor.setTextColor(color)
+					monitor.setCursorPos(x+(sn-1), y+(ln-1))
+					monitor.write("-")
+				end
+			end
+		end
+	end
+	return er
+end
+function fill(w, h, PaintColor) --return table{bool Error, string InvalidArgument}
+	if w          == nil or type(w)          ~= "number" then
+		local er = {true, "w"}
+	elseif h          == nil or type(h)          ~= "number" then
+		local er = {true, "h"}
+	elseif PaintColor == nil or type(PaintColor) ~= "string" then
+		local er = {true, "PaintColor"}
+	else
+		w = math.floor(w)
+		h = math.floor(h)
+		local er = {false}
+		TifImage = {}
+		for i=1,h do
+			s = {}
+			for i=1,w do
+				table.insert(s, PaintColor)
+			end
+			table.insert(TifImage, s)
+		end
+	end
+	return er
+end
+function drawLine(startX, startY, endX, endY, PaintColor)
+	if startX         == nil or type(startX)     ~= "number" then
+		local er = {true, "startX"}
+	elseif startY     == nil or type(startY)     ~= "number" then
+		local er = {true, "startY"}
+	elseif endX       == nil or type(endY)       ~= "number" then
+		local er = {true, "endX"}
+	elseif endY       == nil or type(endY)       ~= "number" then
+		local er = {true, "endY"}
+	elseif PaintColor == nil or type(PaintColor) ~= "string" then
+		local er = {true, "PaintColor"}
+	else
+		startX = math.floor(startX)
+	    startY = math.floor(startY)
+	    endX = math.floor(endX)
+	    endY = math.floor(endY)
 
-
+	    if startX == endX and startY == endY then
+	        drawPixel(startX, startY, PaintColor)
+	    end
+	    local minX = math.min(startX, endX)
+	    local maxX, minY, maxY
+	    if minX == startX then
+	        minY = startY
+	        maxX = endX
+	        maxY = endY
+	    else
+	        minY = endY
+	        maxX = startX
+	        maxY = startY
+	    end
+	        
+	    local xDiff = maxX - minX
+	    local yDiff = maxY - minY
+	            
+	    if xDiff > math.abs(yDiff) then
+	        local y = minY
+	        local dy = yDiff / xDiff
+	        for x=minX,maxX do
+	            drawPixel(x, math.floor(y + 0.5), PaintColor)
+	            y = y + dy
+	        end
+	    else
+	        local x = minX
+	        local dx = xDiff / yDiff
+	        if maxY >= minY then
+	            for y=minY,maxY do
+	                drawPixel(math.floor(x + 0.5), y, PaintColor)
+	            	x = x + dx
+	            end
+	        else
+	            for y=minY,maxY,-1 do
+	                drawPixel(math.floor(x + 0.5), y, PaintColor)
+	                x = x - dx
+	            end
+	        end
+	    end
+	end
+end
+function drawBox(startX, startY, endX, endY, PaintColor, filled)
+	if type(filled) ~= "boolean" or filled == false then
+		filled = false
+	end
+	if startX         == nil or type(startX)     ~= "number" then
+		local er = {true, "startX"}
+	elseif startY     == nil or type(startY)     ~= "number" then
+		local er = {true, "startY"}
+	elseif endX       == nil or type(endY)       ~= "number" then
+		local er = {true, "endX"}
+	elseif endY       == nil or type(endY)       ~= "number" then
+		local er = {true, "endY"}
+	elseif PaintColor == nil or type(PaintColor) ~= "string" then
+		local er = {true, "PaintColor"}
+	else
+		startX = math.floor(startX)
+	    startY = math.floor(startY)
+	    endX = math.floor(endX)
+	    endY = math.floor(endY)
+		local er = {false}
+		if filled == false then
+			drawLine(startX, startY, endX, startY, PaintColor)
+			drawLine(startX, endY, endX, endY, PaintColor)
+			drawLine(startX, startY, startX, endY, PaintColor)
+			drawLine(endX, startY, endX, endY, PaintColor)
+		else 
+			for ln = startY, endY do
+				drawLine(startX, ln, endX, ln, PaintColor)	
+			end
+		end
+	end
+	return er
+end
+local TifImageFunctions = {
+	getImage = function() -- 
+		return TifImage
+	end,
+	save = save,
+	drawImage = drawImage,
+	fill = fill,
+	drawPixel = drawPixel,
+	drawLine = drawLine,
+	drawBox = drawBox
+}
 local bit32 = require("bit32")
 
 
-function api.convertToPaint(decemical) --return number, string, nil
+function api.convertToPaint(decemical) --return string, nil
     return tostring(api.paintToDecimal(decemical))
 end
 function api.paintToDecimal(paint)
-    local number = tonumber(paint)
-    if not number then
-		number = 10 + string.byte(paint) - 97
-    end
-
-    -- lua 5.3 return (2 << (number - 1))
-	return bit32.lshift(2, number - 1)
+	if paint == nil then
+		return nil
+	else
+		local number = tonumber(paint)
+	    if not number then
+			number = 10 + string.byte(paint) - 97
+	    end
+	    -- lua 5.3 return (2 << (number - 1))
+		return bit32.lshift(2, number - 1)
+	end
+    
 end
 function split(inputstr, sep)
     if sep == nil then
@@ -27,6 +216,11 @@ function split(inputstr, sep)
     return t
 end
 function api.loadImage(filename) --return table
+	if fs.exists(filename) == nil then
+		file = fs.open(filename, "w")
+		file.write("")
+		file.close()
+	end
 	local fp    = fs.open(filename, "r")
 	local lines = split(fp.readAll(), "\n")
 	for k,v in pairs(lines) do
@@ -34,84 +228,8 @@ function api.loadImage(filename) --return table
 		v:gsub(".",function(c) table.insert(splited,c) end)
 		lines[k] = splited
 	end
-	return lines
-end
-function api.saveImage(TifImage, filename)
-	local fp = fs.open(filename, "w")
-	fp.write("")
-	fp.close()
-	local fp = fs.open(filename, "a")
-	for ln,l in pairs(TifImage) do
-		for sn,s in pairs(TifImage[ln]) do
-			fp.write(s)
-		end
-		if ln == #TifImage then
-			break
-		else
-			fp.write("\n")
-		end
-	end
-	fp.close()
-end
-function api.drawImage(TifImage, x, y, monitor)
-	if type(monitor) ~= "table" then
-		monitor = term
-	end
-	if TifImage == nil or type(TifImage) ~= "table" then
-		error("Invalid argument TifImage!")
-	elseif x    == nil or type(x)        ~= "number" then
-		error("Invalid argument x!")
-	elseif y    == nil or type(y)        ~= "number" then
-		error("Invalid argument y!")
-	else
-		for ln, l in pairs(TifImage) do
-			for sn, s in pairs(TifImage[ln]) do
-				local color = api.paintToDecimal(s)
-				monitor.setBackgroundColor(color)
-				monitor.setTextColor(color)
-				monitor.setCursorPos(x+(sn-1), y+(ln-1))
-				monitor.write("-")
-			end
-		end
-	end
-end
-function api.fillImage(w, h, PaintColor)
-	if w          == nil or type(w)          ~= "number" then
-		error("Invalid argument w!")
-	elseif h          == nil or type(h)          ~= "number" then
-		error("Invalid argument h!")
-	elseif PaintColor == nil or type(PaintColor) ~= "string" then
-		error("Invalid argument PaintColor!")
-	else
-		TifImage = {}
-		for i=1,h do
-			s = {}
-			for i=1,w do
-				table.insert(s, PaintColor)
-			end
-			table.insert(TifImage, s)
-		end
-		return TifImage
-
-	end
-end
-function api.drawPixel(TifImage, x, y, PaintColor)
-	if TifImage       == nil or type(TifImage)   ~= "table" then
-		error("Invalid argument TifImage!")
-	elseif x          == nil or type(x)          ~= "number" then
-		error("Invalid argument w!")
-	elseif y          == nil or type(y)          ~= "number" then
-		error("Invalid argument h!")
-	elseif PaintColor == nil or type(PaintColor) ~= "string" then
-		error("Invalid argument PaintColor!")
-	else
-		if TifImage[y][x] == nil then
-			error("You can draw only on any color.")
-		else
-			TifImage[y][x] = PaintColor
-			return TifImage
-		end
-	end
+	TifImage = lines
+	return TifImageFunctions
 end
 --[[
 colors.white	 1	   0	#F0F0F0
